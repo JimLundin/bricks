@@ -1,6 +1,8 @@
 """Index of standard HTML elements."""
 
-standard_elements = [
+from typing import Final
+
+STANDARD_ELEMENTS: Final[tuple[str, ...]] = (
     "a",
     "abbr",
     "address",
@@ -112,4 +114,4 @@ standard_elements = [
     "var",
     "video",
     "wbr",
-]
+)
