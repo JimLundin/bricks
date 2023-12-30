@@ -1,183 +1,129 @@
-from __future__ import annotations
-
-__version__ = "0.1.0"
-__author__ = "Jim Lundin"
-__all__ = [
-    "Frag",
-    "SupportsRender",
-    "Attribute",
-    "render_into",
-    "render",
-    "h",
-    "raw",
-    "frag",
-    "html",
-]
-
-import abc
+from collections.abc import Iterable
 from html import escape
-from typing import Union, Dict, Iterable, List, Tuple
+from typing import Self
 
 
-class Frag(abc.ABC):
-    @abc.abstractmethod
-    def render_into(self, builder: List[str]) -> None:
-        ...
-
-    def render(self) -> str:
-        return render(self)
-
-    _repr_html_ = __str__ = render
-
-    def __repr__(self) -> str:
-        return f"raw({self.render()!r})"
+RenderTag = str | int | Frag | None | Iterable["RenderTag"]
 
 
-SupportsRender = Union[str, int, Frag, None,
-                       Iterable[Union[str, int, Frag, None]]]
+def render(tag: RenderTag, builder: list[str]) -> None:
+    match tag:
+        case None:
+            return
+        case str():
+            builder.append(escape(tag, quote=False))
+        case Frag():
+            tag.render_into(builder)
+        case int():
+            builder.append(str(tag))
+        case Iterable():
+            for element in tag:
+                render_into(element, builder)
 
 
-def render_into(frag: SupportsRender, builder: List[str]) -> None:
-    if frag is None:
-        return
-    elif isinstance(frag, str):
-        builder.append(escape(frag, quote=False))
-    elif isinstance(frag, Frag):
-        frag.render_into(builder)
-    elif isinstance(frag, bytes):
-        raise TypeError(f"cannot render bytes as html: {frag!r}")
-    elif hasattr(frag, "__iter__"):
-        for c in frag:
-            render_into(c, builder)
-    else:
-        builder.append(escape(str(frag), quote=False))
-
-
-def render(frag: SupportsRender) -> str:
-    builder: List[str] = []
-    render_into(frag, builder)
+def render_tag(tag: RenderTag) -> str:
+    builder: list[str] = []
+    render_into(tag, builder)
     return "".join(builder)
 
 
-Attribute = Union[
-    str, int, bool, Iterable[Union[str, int, None]], Dict[str, bool], None
-]
+Attribute = str | int | bool | Iterable[str | int | None] | dict[str, bool] | None
 
 
-class h(Frag):
-    def __init__(self, __name: str, **attrs: Attribute) -> None:
+class Tag:
+    def __init__(self: Self, name: str, **attrs: Attribute) -> None:
         # See "Tag name" in
         # https://www.w3.org/TR/html52/syntax.html#writing-html-documents-elements.
-        if not (__name and __name.isascii() and __name.isalnum()):
-            raise ValueError(f"invalid html tag: {__name!r}")
-        self.name = __name
+        if not (name and name.isascii() and name.isalnum()):
+            msg = f"invalid html tag: {name}"
+            raise ValueError(msg)
+        self.name = name
 
-        self.attrs = {_normalize_attr(
-            attr): value for attr, value in attrs.items()}
+        self.attrs = {_normalize_attr(attr): value for attr, value in attrs.items()}
 
-    def render_into(self, builder: List[str]) -> None:
-        builder.append("<")
-        builder.append(self.name)
+    def render_into(self: Self, builder: list[str]) -> None:
+        builder.append("<" + self.name)
         for attr, value in self.attrs.items():
-            if value is False or value is None:
-                # Falsy boolean attributes are omitted altogether:
-                # https://www.w3.org/TR/html52/infrastructure.html#sec-boolean-attributes
-                continue
-            elif value is True:
-                # Use the empty string as the value for truthy boolean
-                # attributes:
-                # https://www.w3.org/TR/html52/infrastructure.html#sec-boolean-attributes
-                value = ""
-            elif isinstance(value, str):
-                pass
-            elif isinstance(value, bytes):
-                raise TypeError(
-                    f"cannot render bytes as html attribute: {value!r}")
-            elif hasattr(value, "__iter__"):
-                if isinstance(value, dict):
-                    value = " ".join(key for key, val in value.items() if val)
-                else:
-                    value = " ".join(str(val)
-                                     for val in value if val is not None)
-                if not value:
-                    # Omit attributes with empty lists or dictionaries entirely.
+            match value:
+                case False | None | []:
                     continue
-            else:
-                value = str(value)
+                case True:
+                    value = ""
+                case str():
+                    pass
+                case bytes():
+                    msg = f"cannot render bytes as html attribute: {value!r}"
+                    raise TypeError(msg)
+                case Iterable():
+                    if not value:
+                        continue
+                    value = " ".join(str(item) for item in value)
+                case _:
+                    value = str(value)
 
             # Attribute name is normalized/validated in constructor.
-            builder.append(" ")
-            builder.append(attr)
+            builder.append(" " + attr)
 
-            # Attribute value syntax:
-            # https://www.w3.org/TR/html52/syntax.html#elements-attributes
             if not value:
                 # If the value is an empty string, use empty attribute syntax.
                 continue
-            else:
-                # Double-quoted attribute value syntax. No need to escape
-                # single quotes, as quote=True would do:
-                # https://github.com/python/cpython/blob/v3.9.0/Lib/html/__init__.py#L12-L25
-                builder.append('="')
-                builder.append(
-                    escape(value, quote=False).replace('"', "&quot;"))
-                builder.append('"')
+            builder.append('="')
+            builder.append(escape(value, quote=False).replace('"', "&quot;"))
+            builder.append('"')
         builder.append(">")
 
-    def __call__(self, *children: SupportsRender) -> _h:
-        return _h(self, children)
+    def __call__(self: Self, *children: RenderTag) -> _Tag:
+        return _Tag(self, children)
 
 
-class _h(Frag):
-    def __init__(self, tag: h, children: Tuple[SupportsRender, ...]) -> None:
+class _Tag(Frag):
+    def __init__(self: Self, tag: Tag, children: tuple[RenderTag, ...]) -> None:
         self.tag = tag
         self.children = children
 
-    def render_into(self, builder: List[str]) -> None:
+    def render_into(self: Self, builder: list[str]) -> None:
         self.tag.render_into(builder)
         for child in self.children:
-            render_into(child, builder)
-        builder.append("</")
-        builder.append(self.tag.name)
-        builder.append(">")
+            render(child, builder)
+        builder.append("</" + self.tag.name + ">")
 
 
 class raw(Frag):
-    def __init__(self, html: str) -> None:
+    def __init__(self: Self, html: str) -> None:
         self.html = html
 
-    def render_into(self, builder: List[str]) -> None:
+    def render_into(self: Self, builder: list[str]) -> None:
         builder.append(self.html)
 
 
 class frag(Frag):
-    def __init__(self, *children: SupportsRender):
+    def __init__(self: Self, *children: RenderTag) -> None:
         self.children = children
 
-    def render_into(self, builder: List[str]) -> None:
+    def render_into(self: Self, builder: list[str]) -> None:
         for child in self.children:
             render_into(child, builder)
 
 
-class html(h):
-    def __init__(self, **attrs: Attribute) -> None:
+class HTML(Tag):
+    def __init__(self: Self, **attrs: Attribute) -> None:
         super().__init__("html", **attrs)
 
-    def render_into(self, builder: List[str]) -> None:
+    def render_into(self: Self, builder: list[str]) -> None:
         builder.append("<!DOCTYPE html>")
         super().render_into(builder)
 
 
 def _normalize_attr(attr: str) -> str:
-    if attr == "klass":
+    if attr in ["klass", "class_name"]:
         return "class"
 
-    if "_" in attr:
-        attr = attr.rstrip("_").replace("_", "-")
+    attr = attr.rstrip("_").replace("_", "-")
 
     # Slightly more restrictive than "Attribute names" in
     # https://www.w3.org/TR/html52/syntax.html#elements-attributes.
-    if not (attr and attr.isascii() and all(ch.isalnum() or ch == "-" for ch in attr)):
-        raise ValueError(f"invalid html attribute name: {attr!r}")
+    if not (attr and attr.isascii()):
+        msg = f"invalid html attribute name: {attr}"
+        raise ValueError(msg)
 
     return attr
