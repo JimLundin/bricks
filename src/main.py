@@ -3,9 +3,15 @@ from __future__ import annotations
 __version__ = "0.1.0"
 __author__ = "Jim Lundin"
 __all__ = [
-    "Frag", "SupportsRender", "Attribute",
-    "render_into", "render",
-    "h", "raw", "frag", "html",
+    "Frag",
+    "SupportsRender",
+    "Attribute",
+    "render_into",
+    "render",
+    "h",
+    "raw",
+    "frag",
+    "html",
 ]
 
 import abc
@@ -18,7 +24,7 @@ class Frag(abc.ABC):
     def render_into(self, builder: List[str]) -> None:
         ...
 
-    def render(self) -> string:
+    def render(self) -> str:
         return render(self)
 
     _repr_html_ = __str__ = render
@@ -27,7 +33,8 @@ class Frag(abc.ABC):
         return f"raw({self.render()!r})"
 
 
-SupportsRender = Union[str, int, Frag, None, Iterable[Union[str, int, Frag, None]]]
+SupportsRender = Union[str, int, Frag, None,
+                       Iterable[Union[str, int, Frag, None]]]
 
 
 def render_into(frag: SupportsRender, builder: List[str]) -> None:
@@ -52,7 +59,9 @@ def render(frag: SupportsRender) -> str:
     return "".join(builder)
 
 
-Attribute = Union[str, int, bool, Iterable[Union[str, int, None]], Dict[str, bool], None]
+Attribute = Union[
+    str, int, bool, Iterable[Union[str, int, None]], Dict[str, bool], None
+]
 
 
 class h(Frag):
@@ -63,7 +72,8 @@ class h(Frag):
             raise ValueError(f"invalid html tag: {__name!r}")
         self.name = __name
 
-        self.attrs = {_normalize_attr(attr): value for attr, value in attrs.items()}
+        self.attrs = {_normalize_attr(
+            attr): value for attr, value in attrs.items()}
 
     def render_into(self, builder: List[str]) -> None:
         builder.append("<")
@@ -81,12 +91,14 @@ class h(Frag):
             elif isinstance(value, str):
                 pass
             elif isinstance(value, bytes):
-                raise TypeError(f"cannot render bytes as html attribute: {value!r}")
+                raise TypeError(
+                    f"cannot render bytes as html attribute: {value!r}")
             elif hasattr(value, "__iter__"):
                 if isinstance(value, dict):
                     value = " ".join(key for key, val in value.items() if val)
                 else:
-                    value = " ".join(str(val) for val in value if val is not None)
+                    value = " ".join(str(val)
+                                     for val in value if val is not None)
                 if not value:
                     # Omit attributes with empty lists or dictionaries entirely.
                     continue
@@ -106,9 +118,10 @@ class h(Frag):
                 # Double-quoted attribute value syntax. No need to escape
                 # single quotes, as quote=True would do:
                 # https://github.com/python/cpython/blob/v3.9.0/Lib/html/__init__.py#L12-L25
-                builder.append("=\"")
-                builder.append(escape(value, quote=False).replace("\"", "&quot;"))
-                builder.append("\"")
+                builder.append('="')
+                builder.append(
+                    escape(value, quote=False).replace('"', "&quot;"))
+                builder.append('"')
         builder.append(">")
 
     def __call__(self, *children: SupportsRender) -> _h:
