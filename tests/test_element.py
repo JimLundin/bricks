@@ -1,6 +1,6 @@
 """Tests for the element function."""
 
-from src.__init__ import element
+from src.element import element
 
 
 def test_element() -> None:
