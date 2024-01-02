@@ -2,7 +2,6 @@ from collections.abc import Iterable
 from html import escape
 from typing import Self
 
-
 RenderTag = str | int | Frag | None | Iterable["RenderTag"]
 
 
