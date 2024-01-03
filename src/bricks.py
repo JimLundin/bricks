@@ -1,37 +1,30 @@
 """Serves the basic HTML generation for the package."""
 
-from collections.abc import Callable, Iterable
-
-Attribute = str | int | bool | None
+from typing import Self
 
 
-def element(name: str) -> Callable[..., str | Callable[..., str]]:
-    """Generate a generic HTML tag, possibly via currying."""
+class Element:
+    """Defines the basid structure of an HTML element."""
 
-    def named_element(
-        *contents: str,
-        **attributes: Attribute,
-    ) -> str | Callable[..., str]:
-        def render_element(contents: Iterable[str]) -> str:
-            if attributes:
-                attribute = " ".join(
-                    [
-                        f'{key.replace("_", "-")}="{value}"'
-                        for key, value in attributes.items()
-                    ],
-                )
-                tag_open = f"<{name} {attribute}>"
-            else:
-                tag_open = f"<{name}>"
-            body = "".join(contents)
+    def __init__(self: Self, name: str, *content: str | Self, **attribute: str) -> None:
+        """HTML element with mandatory name, and optional content and attributes."""
+        self.name = name
+        self.content = content
+        self.attribute = attribute
 
-            tag_close = f"</{name}>"
+    def __call__(self: Self, *content: str | Self, **attribute: str) -> Self:
+        """Create a new element with the same name and attributes."""
+        if content:
+            self.content += content
+        if attribute:
+            self.attribute.update(attribute)
+        return self
 
-            return f"{tag_open}{body}{tag_close}"
+    def __str__(self: Self) -> str:
+        """Convert the element to a string."""
+        attribute = " ".join(
+            f' {key}="{value}"' for key, value in self.attribute.items()
+        )
+        content = "".join(str(item) for item in self.content)
 
-        if contents:
-            return render_element(contents)
-
-        return render_element
-
-    return named_element
+        return f"<{self.name}{attribute}>{content}</{self.name}>"

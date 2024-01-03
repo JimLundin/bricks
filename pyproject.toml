@@ -24,14 +24,27 @@ unsafe-fixes = true
 [tool.ruff.lint]
 select = ["ALL"]
 
+[tool.ruff.per-file-ignores]
+"tests/**/*.py" = [
+    "INP001",
+    "D",
+    # at least this three should be fine in tests:
+    "S101", # asserts allowed in tests...
+    "ARG", # Unused function args -> fixtures nevertheless are functionally relevant...
+    "FBT", # Don't care about booleans as positional arguments in tests, e.g. via @pytest.mark.parametrize()
+    # The below are debateable
+    "PLR2004", # Magic value used in comparison, ...
+    "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes
+]
 [tool.rye]
 managed = true
 dev-dependencies = [
     "pytest>=7.4.4",
+    "ruff>=0.1.11",
 ]
 
 [tool.pytest.ini_options]
-pythonpath = "src"
+pythonpath = "."
 
 [tool.hatch.metadata]
 allow-direct-references = true
