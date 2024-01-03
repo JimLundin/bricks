@@ -1,6 +1,6 @@
 """Tests for the element function."""
 
-from src.element import element
+from bricks import element
 
 
 def test_element() -> None:

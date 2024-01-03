@@ -20,10 +20,10 @@ def element(name: str) -> Callable[..., str | Callable[..., str]]:
                         for key, value in attributes.items()
                     ],
                 )
-
+                tag_open = f"<{name} {attribute}>"
+            else:
+                tag_open = f"<{name}>"
             body = "".join(contents)
-
-            tag_open = f"<{name} {attribute}>" if attribute else f"<{name}>"
 
             tag_close = f"</{name}>"
 

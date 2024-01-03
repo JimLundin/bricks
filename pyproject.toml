@@ -30,6 +30,9 @@ dev-dependencies = [
     "pytest>=7.4.4",
 ]
 
+[tool.pytest.ini_options]
+pythonpath = "src"
+
 [tool.hatch.metadata]
 allow-direct-references = true
 
