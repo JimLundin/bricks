@@ -1,26 +1,17 @@
 """Tests for the element function."""
 
-import pytest
 
 from src.bricks import Element
 
 
-@pytest.fixture()
-def div_without_attrs() -> Element:
-    return Element("div")("test")
+def test_element_without_attrs() -> None:
+    element = Element("div")("test")
+    assert str(element) == "<div>test</div>"
 
 
-@pytest.fixture()
-def div_with_attrs() -> Element:
-    return Element("div")(style="test")("test")
-
-
-def test_element_without_attrs(div_without_attrs: Element) -> None:
-    assert str(div_without_attrs) == "<div>test</div>"
-
-
-def test_element_with_attrs(div_with_attrs: Element) -> None:
-    assert str(div_with_attrs) == '<div style="test">test</div>'
+def test_element_with_attrs() -> None:
+    element = Element("div")(style="test")("test")
+    assert str(element) == '<div style="test">test</div>'
 
 
 def test_multiple_attributes_and_content() -> None:
@@ -34,5 +25,37 @@ def test_nested_elements() -> None:
 
 
 def test_empty_element() -> None:
-    empty_element = Element("br")()
+    empty_element = Element("br")
     assert str(empty_element) == "<br>"
+
+
+def test_element_with_attrs_underscore() -> None:
+    element = Element("div")(style="test", data_value="123")("test")
+    assert str(element) == '<div style="test" data-value="123">test</div>'
+
+
+def test_attribute_formatting() -> None:
+    element = Element("a")(href="https://example.com", aria_label="Link")("Click me")
+    assert (
+        str(element) == '<a href="https://example.com" aria-label="Link">Click me</a>'
+    )
+
+
+def test_reserved_keyword_in_attribute_name() -> None:
+    element = Element("span")(class_="highlight")("Text")
+    assert str(element) == '<span class="highlight">Text</span>'
+
+
+def test_multiple_attributes_and_content_with_formatting() -> None:
+    element = Element("button")(type_="button", disabled=True, custom_data_value="123")(
+        "Click me",
+    )
+    assert (
+        str(element)
+        == '<button type="button" disabled custom-data-value="123">Click me</button>'
+    )
+
+
+def test_attribute_with_underscore() -> None:
+    element = Element("input")(type_="text", placeholder="Enter text")
+    assert str(element) == '<input type="text" placeholder="Enter text">'
