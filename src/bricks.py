@@ -1,8 +1,11 @@
 """Serves the basic HTML generation for the package."""
+from __future__ import annotations
 
 from typing import Self
 
-AttributeType = str | int | bool
+from src.elements import STANDARD_ELEMENTS
+
+Attribute = str | int | bool
 
 
 class Element:
@@ -11,15 +14,19 @@ class Element:
     def __init__(
         self: Self,
         name: str,
-        *content: str | Self,
-        **attribute: AttributeType,
+        *content: Attribute | Element,
+        **attribute: Attribute,
     ) -> None:
         """HTML element with mandatory name, and optional content and attributes."""
         self.name = name
         self.content = content
         self.attribute = attribute
 
-    def __call__(self: Self, *content: str | Self, **attribute: AttributeType) -> Self:
+    def __call__(
+        self: Self,
+        *content: Attribute | Element,
+        **attribute: Attribute,
+    ) -> Self:
         """Create a new element with the same name and attributes."""
         if content:
             self.content += content
@@ -30,7 +37,7 @@ class Element:
     def __str__(self: Self) -> str:
         """Convert the element to a string."""
 
-        def format_attribute(key: str, value: AttributeType) -> str:
+        def format_attribute(key: str, value: Attribute) -> str:
             formatted_key = key.rstrip("_").replace("_", "-")
             if isinstance(value, bool):
                 if value:
@@ -47,3 +54,22 @@ class Element:
         closing_tag = f"</{self.name}>" if self.content else ""
 
         return f"{opening_tag}{content}{closing_tag}"
+
+
+def create_standard_element_class(element_name: str) -> type[Element]:
+    """Create a class that inherits from Element and adds the name."""
+
+    class StandardElement(Element):
+        def __init__(
+            self: Self,
+            *content: Attribute | Element,
+            **attribute: Attribute,
+        ) -> None:
+            super().__init__(element_name, *content, **attribute)
+
+    return StandardElement
+
+
+for standard_element in STANDARD_ELEMENTS:
+    StandardElement = create_standard_element_class(standard_element)
+    globals()[standard_element] = StandardElement
