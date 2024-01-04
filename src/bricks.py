@@ -6,7 +6,7 @@ AttributeType = str | int | bool
 
 
 class Element:
-    """Defines the basid structure of an HTML element."""
+    """Defines the basic structure of an HTML element."""
 
     def __init__(
         self: Self,
