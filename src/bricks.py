@@ -22,9 +22,12 @@ class Element:
 
     def __str__(self: Self) -> str:
         """Convert the element to a string."""
-        attribute = " ".join(
+        attribute = "".join(
             f' {key}="{value}"' for key, value in self.attribute.items()
         )
-        content = "".join(str(item) for item in self.content)
 
-        return f"<{self.name}{attribute}>{content}</{self.name}>"
+        opening_tag = f"<{self.name}{attribute}>"
+        content = "".join(str(item) for item in self.content)
+        closing_tag = f"</{self.name}>" if self.content else ""
+
+        return f"{opening_tag}{content}{closing_tag}"
