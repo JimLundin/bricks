@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from typing import Self
 
-from src.elements import STANDARD_ELEMENTS
 
 Attribute = str | int | bool
 
@@ -102,24 +101,3 @@ class H1(Element):
     ) -> None:
         """Element with the name "h1" and the content and attributes."""
         super().__init__("h1", *content, **attribute)
-
-
-def create_standard_element_class(element_name: str) -> type[Element]:
-    """Create a class that inherits from Element and adds the name."""
-
-    class StandardElement(Element):
-        def __init__(
-            self: Self,
-            *content: Attribute | Element,
-            **attribute: Attribute,
-        ) -> None:
-            super().__init__(element_name, *content, **attribute)
-
-    StandardElement.__name__ = element_name
-
-    return StandardElement
-
-
-for standard_element in STANDARD_ELEMENTS:
-    StandardElement = create_standard_element_class(standard_element)
-    globals()[standard_element] = StandardElement
