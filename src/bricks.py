@@ -56,6 +56,54 @@ class Element:
         return f"{opening_tag}{content}{closing_tag}"
 
 
+class Div(Element):
+    """Element representing a <div> tag."""
+
+    def __init__(
+        self: Self,
+        *content: Attribute | Element,
+        **attribute: Attribute,
+    ) -> None:
+        """Element with the name "div" and the content and attributes."""
+        super().__init__("div", *content, **attribute)
+
+
+class P(Element):
+    """Element representing a <p> tag."""
+
+    def __init__(
+        self: Self,
+        *content: Attribute | Element,
+        **attribute: Attribute,
+    ) -> None:
+        """Element with the name "p" and the content and attributes."""
+        super().__init__("p", *content, **attribute)
+
+
+class A(Element):
+    """Element representing an <a> tag."""
+
+    def __init__(
+        self: Self,
+        *content: Attribute | Element,
+        **attribute: Attribute,
+    ) -> None:
+        """Element with the name "a" and the content and attributes."""
+        super().__init__("a", *content, **attribute)
+
+
+class H1(Element):
+    """Element representing an <h1> tag."""
+
+    def __init__(
+        self: Self,
+        *content: Attribute | Element,
+        **attribute: Attribute,
+    ) -> None:
+        """Element with the name "h1" and the content and attributes."""
+        super().__init__("h1", *content, **attribute)
+
+
 def create_standard_element_class(element_name: str) -> type[Element]:
     """Create a class that inherits from Element and adds the name."""
 
@@ -66,6 +114,8 @@ def create_standard_element_class(element_name: str) -> type[Element]:
             **attribute: Attribute,
         ) -> None:
             super().__init__(element_name, *content, **attribute)
+
+    StandardElement.__name__ = element_name
 
     return StandardElement
 

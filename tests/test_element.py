@@ -1,7 +1,7 @@
 """Tests for the element function."""
 
-
-from src.bricks import Element
+import pytest
+from src.bricks import Element, Div, P, A, H1
 
 
 def test_element_without_attrs() -> None:
@@ -113,3 +113,30 @@ def test_nested_elements_with_f_strings() -> None:
         "</div>"
     )
     assert str(element) == expected_result
+
+
+def test_div() -> None:
+    div_element = Div(style="background-color: #eee")("This is a standard div")
+    assert (
+        str(div_element)
+        == '<div style="background-color: #eee">This is a standard div</div>'
+    )
+
+
+def test_p() -> None:
+    p_element = P(class_="paragraph")("This is a standard paragraph")
+    assert str(p_element) == '<p class="paragraph">This is a standard paragraph</p>'
+
+
+def test_a() -> None:
+    a_element = A(href="https://example.com")("Visit Example")
+    assert str(a_element) == '<a href="https://example.com">Visit Example</a>'
+
+
+def test_h1() -> None:
+    h1_element = H1()("Heading 1")
+    assert str(h1_element) == "<h1>Heading 1</h1>"
+
+
+if __name__ == "__main__":
+    pytest.main()
