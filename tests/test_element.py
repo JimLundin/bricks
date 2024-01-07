@@ -1,7 +1,8 @@
 """Tests for the element function."""
 
 import pytest
-from src.bricks import Element, Div, P, A, H1
+
+from src.bricks import H1, A, Div, Element, P
 
 
 def test_element_without_attrs() -> None:

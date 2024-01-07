@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from typing import Self
 
-
 Attribute = str | int | bool
+Content = Attribute | Element
 
 
 class Element:
@@ -13,7 +13,7 @@ class Element:
     def __init__(
         self: Self,
         name: str,
-        *content: Attribute | Element,
+        *content: Content,
         **attribute: Attribute,
     ) -> None:
         """HTML element with mandatory name, and optional content and attributes."""
