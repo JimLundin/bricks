@@ -7,6 +7,51 @@ from typing import Self
 from src.element import Attribute, Content, Element
 
 
+class Head(Element):
+    """Represents the head of an HTML document."""
+
+    def __init__(
+        self: Self,
+        *content: Content,
+        **attribute: Attribute,
+    ) -> None:
+        """Element with the name "head" and the content and attributes."""
+        super().__init__("head", *content, **attribute)
+
+
+class Body(Element):
+    """Represents the body of an HTML document."""
+
+    def __init__(
+        self: Self,
+        *content: Content,
+        **attribute: Attribute,
+    ) -> None:
+        """Element with the name "body" and the content and attributes."""
+        super().__init__("body", *content, **attribute)
+
+
+class Html(Element):
+    """Represents the root element of an HTML document."""
+
+    def __init__(
+        self: Self,
+        head: Head | None = None,
+        body: Body | None = None,
+        *content: Content,
+        **attribute: Attribute,
+    ) -> None:
+        """Element with the name "html" and the content and attributes."""
+        head = head or Head()
+        body = body or Body(*content)
+
+        super().__init__("html", *(head, body), **attribute)
+
+    def __str__(self: Self) -> str:
+        """Convert the element to a string."""
+        return f"<!DOCTYPE html>{super().__str__()}"
+
+
 class Div(Element):
     """Element representing a <div> tag."""
 
