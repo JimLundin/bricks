@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Self
 
-from src.bricks import Attribute, Element
+from src.element import Attribute, Content, Element
 
 
 class Div(Element):
@@ -12,7 +12,7 @@ class Div(Element):
 
     def __init__(
         self: Self,
-        *content: Attribute | Element,
+        *content: Content,
         **attribute: Attribute,
     ) -> None:
         """Element with the name "div" and the content and attributes."""
@@ -24,7 +24,7 @@ class P(Element):
 
     def __init__(
         self: Self,
-        *content: Attribute | Element,
+        *content: Content,
         **attribute: Attribute,
     ) -> None:
         """Element with the name "p" and the content and attributes."""
@@ -36,7 +36,7 @@ class A(Element):
 
     def __init__(
         self: Self,
-        *content: Attribute | Element,
+        *content: Content,
         **attribute: Attribute,
     ) -> None:
         """Element with the name "a" and the content and attributes."""
@@ -48,7 +48,7 @@ class H1(Element):
 
     def __init__(
         self: Self,
-        *content: Attribute | Element,
+        *content: Content,
         **attribute: Attribute,
     ) -> None:
         """Element with the name "h1" and the content and attributes."""

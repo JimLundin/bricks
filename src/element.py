@@ -1,10 +1,10 @@
 """Serves the basic HTML generation for the package."""
 from __future__ import annotations
 
-from typing import Self
+from typing import Self, Union
 
 Attribute = str | int | bool
-Content = Attribute | Element
+Content = Union[Attribute, "Element"]
 
 
 class Element:

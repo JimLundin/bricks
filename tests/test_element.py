@@ -1,8 +1,8 @@
 """Tests for the element function."""
 
-import pytest
 
-from src.bricks import H1, A, Div, Element, P
+from src.element import Element
+from src.html_elements import H1, A, Div, P
 
 
 def test_element_without_attrs() -> None:
@@ -139,5 +139,6 @@ def test_h1() -> None:
     assert str(h1_element) == "<h1>Heading 1</h1>"
 
 
-if __name__ == "__main__":
-    pytest.main()
+def test_nested_subclass_elements() -> None:
+    h1_inside_div = Div(H1("Heading 1"))
+    assert str(h1_inside_div) == "<div><h1>Heading 1</h1></div>"
