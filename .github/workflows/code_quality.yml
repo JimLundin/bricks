@@ -16,6 +16,7 @@ jobs:
       - name: Install dependencies
         run: rye sync
       - name: Linting
-        uses: chartboost/ruff-action@v1
+        run: rye fmt
+        run: rye lint --fix
       - name: Testing
         run: rye run pytest --cov-report term-missing
